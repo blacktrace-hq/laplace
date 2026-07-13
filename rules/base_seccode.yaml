@@ -1,0 +1,75 @@
+# LAPLACE base pack -- the sealed 8-CWE seccode oracle in declarative form.
+# Messages are byte-identical to oracle_seccode.findings() so the findings SET
+# (not just the KILL/PASS verdict) reproduces the sealed result exactly.
+version: seccode-v1
+rules:
+  - id: eval
+    cwe: CWE-95
+    message: "eval() executes code"
+    check: {type: call_pattern, names: [eval]}
+
+  - id: exec
+    cwe: CWE-95
+    message: "exec() executes code"
+    check: {type: call_pattern, names: [exec]}
+
+  - id: pickle-loads
+    cwe: CWE-502
+    message: "pickle.loads deserialises untrusted data"
+    check: {type: call_pattern, names: [loads], require_src: 'pickle\s*\.\s*loads'}
+
+  - id: yaml-load
+    cwe: CWE-502
+    message: "yaml.load without SafeLoader"
+    check:
+      type: call_pattern
+      names: [load]
+      require_src: 'yaml\s*\.\s*load\s*\('
+      forbid_src: ["SafeLoader", "Loader="]
+
+  - id: sql-dynamic
+    cwe: CWE-89
+    message: "SQL built from dynamic/concatenated string"
+    check: {type: call_pattern, names: [execute, executemany], require_arg0_dynamic: true}
+
+  - id: subprocess-shell
+    cwe: CWE-78
+    message: "subprocess with shell=True"
+    check: {type: call_pattern, names: [run, call, Popen, check_output], require_kwarg_true: shell}
+
+  - id: os-system
+    cwe: CWE-78
+    message: "os.system shell execution"
+    check: {type: call_pattern, names: [system], require_src: 'os\s*\.\s*system'}
+
+  - id: tls-verify-kwarg
+    cwe: CWE-295
+    message: "TLS verification disabled (verify=False)"
+    check: {type: call_pattern, require_kwarg_false: verify}
+
+  - id: flask-debug
+    cwe: CWE-489
+    message: "Flask app.run(debug=True) in production"
+    check: {type: call_pattern, names: [run], require_kwarg_true: debug}
+
+  - id: weak-hash-credential
+    cwe: CWE-327
+    message: "weak hash (md5/sha1) over a credential"
+    check:
+      type: all_of
+      of:
+        - {type: source_regex, pattern: '\b(md5|sha1)\s*\('}
+        - {type: source_regex, pattern: 'pass|pwd|secret|token', flags: i}
+
+  - id: hardcoded-credential
+    cwe: CWE-798
+    message: "hardcoded credential"
+    check:
+      type: source_regex
+      pattern: "(password|passwd|secret|api_key|apikey|token)\\s*=\\s*['\"][^'\"]{6,}['\"]"
+      flags: i
+
+  - id: tls-verify-source
+    cwe: CWE-295
+    message: "TLS verification disabled (source match)"
+    check: {type: source_regex, pattern: 'verify\s*=\s*False'}

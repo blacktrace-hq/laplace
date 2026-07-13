@@ -1,0 +1,27 @@
+name: "LAPLACE deterministic security gate"
+description: "Zero-LLM, air-gapped CWE gate. Blocks real injection/deserialization/credential issues; emits a reproducible receipt. Runs entirely on your runner -- your code never leaves it."
+branding:
+  icon: "shield"
+  color: "gray-dark"
+inputs:
+  path:
+    description: "Directory to scan (relative to the repo root)."
+    required: false
+    default: "."
+  config:
+    description: "Path to your .laplace/config.yml (buyer rules). Custom rules require a license."
+    required: false
+    default: ".laplace/config.yml"
+  license:
+    description: "LAPLACE license token. Store it as an encrypted repo secret and pass it as secrets.LAPLACE_LICENSE."
+    required: false
+    default: ""
+runs:
+  using: "docker"
+  image: "Dockerfile"
+  args:
+    - ${{ inputs.path }}
+  env:
+    LAPLACE_CONFIG: ${{ inputs.config }}
+    LAPLACE_LICENSE: ${{ inputs.license }}
+    LAPLACE_RECEIPTS: "laplace-receipts.json"
