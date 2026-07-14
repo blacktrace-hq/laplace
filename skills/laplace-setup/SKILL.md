@@ -72,7 +72,7 @@ rules: []
 ```yaml
 repos:
   - repo: https://github.com/blacktrace-hq/laplace
-    rev: v1.0.0
+    rev: v1.1.0
     hooks:
       - id: laplace-gate
 ```
