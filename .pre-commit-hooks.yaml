@@ -1,8 +1,8 @@
 - id: laplace-gate
   name: LAPLACE deterministic security gate
-  description: Zero-LLM AST/regex gate for injection, deserialization, and credential issues. Runs in a local container; nothing leaves your machine.
-  language: docker
-  entry: python3 /laplace/action/entrypoint.py
+  description: Zero-LLM AST/regex gate for injection, deserialization, and credential issues. Runs locally in an isolated venv; nothing leaves your machine.
+  language: python
+  entry: laplace-gate
   args: ['.']
   pass_filenames: false
   types: [python]
